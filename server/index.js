@@ -8,7 +8,12 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
-import {register} from ".controllers/auth.js"
+import authRoutes from "./routes/auth.js";
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
+import { register } from "./controllers/auth.js";
+import { createPost } from "./controllers/posts.js";
+import { verifyToken } from "./middleware/auth.js";
 
 //dot.env için gerekli()
 dotenv.config();
@@ -19,14 +24,13 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
-app.use(express.urlencoded({limit:"30mb",extended: true})); 
-app.use(express.json({limit:"30mb",extended: true}));
+app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(express.json({ limit: "30mb", extended: true }));
 app.use(cors());
 app.use("/assets,", express.static(path.join(__dirname, "public/assets")));
 
@@ -42,21 +46,26 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 //Routes with Files
-app.post("/auth/register,",upload.single("picture"),register)
+app.post("/auth/register,", upload.single("picture"), register);
+app.post("/posts", verifyToken, upload.single("picture"), createPost);
 
-
-
+//Routes
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+app.use("/posts", postRoutes);
 
 //MONGOOSE Setup
 const PORT = process.env.PORT || 6001;
 mongoose
-  .connect(process.env.DB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  },mongoose.set('strictQuery', true))
+  .connect(
+    process.env.DB_URI,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+    mongoose.set("strictQuery", true)
+  )
   .then(() => {
     app.listen(PORT, () => console.log(`Server Port:${PORT}`));
   })
   .catch((error) => console.log(`${error} did not connect`));
-  
-  
