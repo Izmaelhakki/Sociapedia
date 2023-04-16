@@ -15,4 +15,4 @@ Express - multer - dotenv - cors - body-parser - helmet - mongoose - bcrypt- jso
 
 Frontend Packages Used
 redux - @reduxjs/toolkit - redux-persist - react-dropzone - dotenv - formik - yup - react-router-dom@6 - @mui/material-emotion-styled-iconsmaterial
-Translated with www.DeepL.com/Translator (free version)
+
